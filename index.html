@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPI QR Code Generator - Yash ID Seller</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'VT323', monospace;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1 {
+            font-family: 'Press Start 2P', cursive;
+            color: #ff4500;
+            text-shadow: 2px 2px 8px #000000;
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
+        }
+        input[type="number"] {
+            padding: 12px;
+            font-size: 18px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            width: 300px;
+            background-color: #1f1f1f;
+            color: #00ff00;
+            text-align: center;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 18px;
+            font-family: 'Press Start 2P', cursive;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+            background: linear-gradient(90deg, #ff4500, #00ff88);
+            color: #121212;
+            text-shadow: 1px 1px 4px #000000;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #00ff88;
+        }
+        #qrcode , img{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+        #paymentDetails {
+            font-family: 'VT323', monospace;
+            color: #00ff88;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+            font-size: 20px;
+        }
+        #downloadBtn {
+            display: none;
+        }
+        .qr-container {
+            background: linear-gradient(135deg, rgba(0, 255, 128, 1), rgba(0, 102, 204, 1), rgba(255, 0, 128, 0.8));
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            color: #ffffff;
+        }
+        .qr-container h2 {
+            font-size: 24px;
+            margin: 10px 0;
+            color: #ff4500;
+            text-shadow: 2px 2px 4px #000000;
+        }
+        .qr-container p {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gaming QR Codes</h1>
+    <input type="number" id="amountInput" placeholder="Enter Amount" min="0" step="0.01">
+    <button onclick="generateQR()">Generate QR Code</button>
+    <div id="qrcode"></div>
+    <div id="paymentDetails">
+        Bank Name: Yash ID Seller<br>
+        UPI ID: yash7722@fam
+    </div>
+    <button id="downloadBtn" onclick="downloadQR()">Download QR Code</button>
+
+    <script>
+        const UPI_ID = 'yash7722@fam';
+        const BANK_NAME = 'Yash ID Seller';
+        let qrCodeInstance = null;
+
+        function generateQR() {
+            const amount = document.getElementById('amountInput').value;
+            if (!amount || parseFloat(amount) <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            document.getElementById('qrcode').innerHTML = '';
+            const upiUrl = `upi://pay?pa=${UPI_ID}&am=${amount}&cu=INR&pn=${encodeURIComponent(BANK_NAME)}`;
+            qrCodeInstance = new QRCode(document.getElementById('qrcode'), {
+                text: upiUrl,
+                width: 250,
+                height: 250,
+                colorDark: 'rgba(0, 191, 255, 1)',
+                colorLight: 'transparent',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            document.getElementById('paymentDetails').style.display = 'block';
+            document.getElementById('downloadBtn').style.display = 'block';
+        }
+
+        function downloadQR() {
+            const amount = document.getElementById('amountInput').value;
+            if (!qrCodeInstance) {
+                alert('Please generate the QR code first!');
+                return;
+            }
+
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            if (!qrCanvas) {
+                alert('QR code not generated properly!');
+                return;
+            }
+
+            const qrContainer = document.createElement('div');
+            qrContainer.className = 'qr-container';
+            const companyName = document.createElement('h2');
+            companyName.textContent = 'Yash ID Seller';
+            const amountText = document.createElement('p');
+            amountText.textContent = `Amount: ₹${amount}`;
+            const upiIdText = document.createElement('p');
+            upiIdText.textContent = `UPI ID: ${UPI_ID}`;
+            qrContainer.appendChild(companyName);
+            qrContainer.appendChild(amountText);
+            qrContainer.appendChild(upiIdText);
+
+            const qrImage = document.createElement('img');
+            qrImage.src = qrCanvas.toDataURL('image/png');
+            qrImage.style.width = '250px';
+            qrImage.style.height = '250px';
+            qrContainer.appendChild(qrImage);
+
+            document.body.appendChild(qrContainer);
+            html2canvas(qrContainer).then(canvas => {
+                document.body.removeChild(qrContainer);
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.download = `₹${amount}_qr_code.jpg`;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                }, 'image/jpeg');
+            });
+        }
+    </script>
+</body>
+</html>
